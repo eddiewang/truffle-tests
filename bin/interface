@@ -1,0 +1,36 @@
+#!/bin/bash
+
+abi_summary() {
+  local schema_file="$1";
+
+  cat "$schema_file" | jq -r '
+    .abi |
+    map(select(.type == "function")) | # Select only functions
+    map(                               # Concatenate arguments and wrap in parens
+      .name +
+      "(" + (
+        .inputs |
+        map(.type + " " + .name) |
+        join(", ")
+      ) + ")"
+    ) |
+    .[]
+  '
+}
+
+indent() {
+  sed 's/^/  /'
+}
+
+summarize() {
+  local name="$1"
+  local path="build/contracts/$name.json"
+
+  echo "$name"
+  abi_summary "$path" | indent
+  echo
+}
+
+summarize BLT
+summarize BloomTokenSale
+summarize MiniMeVestedToken

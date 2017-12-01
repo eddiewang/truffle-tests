@@ -1,0 +1,14 @@
+machine:
+  node:
+    version: 6.11.2
+
+dependencies:
+  override:
+    - yarn
+    - ./node_modules/.bin/truffle install
+
+test:
+  override:
+    - bin/compile-typings && git diff --exit-code
+    - bin/test
+    - git ls-files contracts | grep -v 'MiniMeToken.sol' | xargs bin/lint
